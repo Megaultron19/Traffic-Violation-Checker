@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Violation review{% endblock %}</title>
+{% block head %}{% endblock %}
+<style>
+:root { --ink: #16202a; --muted: #5b6875; --line: #d9dee4; --bg: #f5f6f8; --card: #fff;
+  --accent: #0b5cad; --good: #1a7f4b; --bad: #b3261e; --warn: #8a5a00; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.5 system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+header { background: var(--card); border-bottom: 1px solid var(--line); padding: 10px 20px;
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+header strong { margin-right: 12px; }
+header a { color: var(--ink); text-decoration: none; }
+header a:hover, header a:focus-visible { text-decoration: underline; }
+header form { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+main { max-width: 1180px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 22px; margin: 0 0 16px; }
+h2 { font-size: 17px; margin: 24px 0 10px; }
+table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; background: #eef1f4; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+label { display: block; margin: 10px 0 4px; font-weight: 600; }
+input, select, textarea { font: inherit; padding: 7px 9px; border: 1px solid #aab3bd; border-radius: 4px;
+  width: 100%; max-width: 420px; background: #fff; color: var(--ink); }
+button { font: inherit; padding: 8px 14px; border: 1px solid var(--accent); border-radius: 4px;
+  background: var(--accent); color: #fff; cursor: pointer; }
+button.plain { background: #fff; color: var(--ink); border-color: #aab3bd; }
+button.bad { background: var(--bad); border-color: var(--bad); }
+button.good { background: var(--good); border-color: var(--good); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+:focus-visible { outline: 3px solid #f2a900; outline-offset: 2px; }
+.error { background: #fdecea; border: 1px solid var(--bad); color: var(--bad); padding: 10px 12px; border-radius: 4px; margin-bottom: 14px; }
+.note { color: var(--muted); }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 13px; border: 1px solid var(--line); background: #eef1f4; }
+.tag.approved, .tag.done { color: var(--good); border-color: var(--good); background: #e8f5ee; }
+.tag.rejected, .tag.failed { color: var(--bad); border-color: var(--bad); background: #fdecea; }
+.tag.auto_issued, .tag.running { color: var(--accent); border-color: var(--accent); background: #e8f1fb; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+.row > div { flex: 0 1 200px; }
+.grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
+img { max-width: 100%; height: auto; display: block; border: 1px solid var(--line); }
+kbd { border: 1px solid #aab3bd; border-radius: 3px; padding: 0 5px; background: #fff; color: var(--ink); font-size: 13px; }
+progress { width: 140px; }
+@media (max-width: 800px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+{% if user %}
+<header>
+  <strong>Violation review</strong>
+  <a href="/cases">Cases</a>
+  <a href="/upload">Upload</a>
+  <a href="/jobs">Jobs</a>
+  {% if user.role == 'admin' %}
+  <a href="/calibration">Calibration</a>
+  <a href="/audit">Audit log</a>
+  <a href="/admin">Admin</a>
+  {% endif %}
+  <form method="post" action="/logout">
+    <span class="note">{{ user.username }} ({{ user.role }})</span>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="plain">Sign out</button>
+  </form>
+</header>
+{% endif %}
+<main>
+{% if error %}<div class="error" role="alert">{{ error }}</div>{% endif %}
+{% block main %}{% endblock %}
+</main>
+</body>
+</html>

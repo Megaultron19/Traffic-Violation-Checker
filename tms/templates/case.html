@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Case {{ case.id }}{% endblock %}
+{% block main %}
+<h1>Case {{ case.id }}: {{ labels[case.violation] }} <span class="tag {{ case.status }}">{{ case.status | replace('_', ' ') }}</span></h1>
+<div class="grid">
+  <div>
+    {% if evidence.frame %}<img src="/evidence/{{ evidence.frame.id }}" alt="Frame showing the vehicle, outlined in red, with the checked area in yellow">
+    {% else %}<p class="card note">Evidence images for this case have been removed.</p>{% endif %}
+  </div>
+  <div>
+    <div class="card">
+      {% if evidence.crop %}<p><strong>Checked area</strong></p><img src="/evidence/{{ evidence.crop.id }}" alt="Close-up of the area the check looked at">{% endif %}
+      {% if evidence.plate %}<p><strong>Number plate</strong></p><img src="/evidence/{{ evidence.plate.id }}" alt="Close-up of the number plate">{% endif %}
+    </div>
+    <div class="card">
+      <table>
+        <tr><th>When</th><td>{{ case.occurred_at }}</td></tr>
+        <tr><th>Camera</th><td>{{ case.camera }}{% if case.location %}, {{ case.location }}{% endif %}</td></tr>
+        <tr><th>Confidence</th><td>{{ '%.2f' | format(case.confidence) }}</td></tr>
+        <tr><th>Frames</th><td>{{ votes.hits }} of {{ votes.usable }} clear frames showed the violation ({{ votes.total }} seen)</td></tr>
+        <tr><th>Plate as read</th><td>{{ case.plate_raw or 'not read' }}</td></tr>
+        <tr><th>Models</th><td>{% for name, version in versions.items() %}{{ name }} {{ version }}<br>{% endfor %}</td></tr>
+        {% if case.decided_by %}<tr><th>Decided</th><td>{{ case.decider }} at {{ case.decided_at }}{% if case.reason %}<br>{{ case.reason }}{% endif %}</td></tr>{% endif %}
+      </table>
+      <p><a href="/cases/{{ case.id }}/evidence.zip">Download evidence (ZIP)</a></p>
+    </div>
+    {% if open_case %}
+    <form class="card" id="decide" method="post" action="/cases/{{ case.id }}/decide">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="plate">Plate</label>
+      <input id="plate" name="plate" value="{{ case.plate }}" autocapitalize="characters" spellcheck="false">
+      {% if not case.plate_valid %}<p class="note">This plate did not pass the format check. Correct it before approving.</p>{% endif %}
+      <label for="reason">Reason (needed to reject)</label>
+      <input id="reason" name="reason">
+      <p>
+        <button class="good" name="action" value="approve" id="approve">Approve <kbd>A</kbd></button>
+        <button class="bad" name="action" value="reject" id="reject">Reject <kbd>R</kbd></button>
+      </p>
+    </form>
+    <script>
+    document.addEventListener("keydown", function (event) {
+      if (event.target.matches("input, textarea, select") || event.ctrlKey || event.metaKey || event.altKey) return;
+      var key = event.key.toLowerCase();
+      if (key === "a") document.getElementById("approve").click();
+      if (key === "r") { document.getElementById("reason").focus(); event.preventDefault(); }
+    });
+    document.getElementById("reason").addEventListener("keydown", function (event) {
+      if (event.key === "Enter") { event.preventDefault(); document.getElementById("reject").click(); }
+    });
+    </script>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

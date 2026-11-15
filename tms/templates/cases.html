@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Cases{% endblock %}
+{% block main %}
+<h1>Cases</h1>
+<form class="card row" method="get" action="/cases">
+  <div><label for="status">Status</label>
+    <select id="status" name="status">
+      {% for value, text in [('queue', 'Needs review'), ('', 'All'), ('pending', 'Pending'), ('approved', 'Approved'), ('auto_issued', 'Issued automatically'), ('rejected', 'Rejected')] %}
+      <option value="{{ value }}" {{ 'selected' if filters.status == value }}>{{ text }}</option>
+      {% endfor %}
+    </select></div>
+  <div><label for="violation">Violation</label>
+    <select id="violation" name="violation">
+      <option value="">All</option>
+      {% for value, text in labels.items() %}<option value="{{ value }}" {{ 'selected' if filters.violation == value }}>{{ text }}</option>{% endfor %}
+    </select></div>
+  <div><label for="camera">Camera</label>
+    <select id="camera" name="camera">
+      <option value="">All</option>
+      {% for cam in cameras %}<option value="{{ cam.id }}" {{ 'selected' if filters.camera == cam.id | string }}>{{ cam.name }}</option>{% endfor %}
+    </select></div>
+  <div><label for="day">Date</label><input id="day" name="day" type="date" value="{{ filters.day }}"></div>
+  <div><button>Filter</button></div>
+  <div><a href="/export.csv">Export issued cases (CSV)</a></div>
+</form>
+<table>
+  <tr><th>Case</th><th>Violation</th><th>Plate</th><th>When</th><th>Camera</th><th>Confidence</th><th>Status</th></tr>
+  {% for case in cases %}
+  <tr>
+    <td><a href="/cases/{{ case.id }}">{{ case.id }}</a></td>
+    <td>{{ labels[case.violation] }}</td>
+    <td>{{ case.plate or 'not read' }}{% if case.plate and not case.plate_valid %} <span class="note">(unverified)</span>{% endif %}</td>
+    <td>{{ case.occurred_at }}</td>
+    <td>{{ case.camera }}</td>
+    <td>{{ '%.2f' | format(case.confidence) }}</td>
+    <td><span class="tag {{ case.status }}">{{ case.status | replace('_', ' ') }}</span>{% if case.sampled and not case.decided_by %} <span class="note">spot check</span>{% endif %}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7" class="note">No cases match.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

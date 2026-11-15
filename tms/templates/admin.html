@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block main %}
+<h1>Admin</h1>
+<h2>Users</h2>
+<table>
+  <tr><th>Username</th><th>Role</th><th>Status</th><th></th></tr>
+  {% for person in users %}
+  <tr><td>{{ person.username }}</td><td>{{ person.role }}</td><td>{{ 'active' if person.active else 'deactivated' }}</td>
+    <td>{% if person.id != user.id %}<form method="post" action="/admin/users/{{ person.id }}/active">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="plain" name="active" value="{{ 0 if person.active else 1 }}">{{ 'Deactivate' if person.active else 'Reactivate' }}</button></form>{% endif %}</td></tr>
+  {% endfor %}
+</table>
+<form class="card row" method="post" action="/admin/users" style="margin-top: 12px">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <div><label for="new_username">Username</label><input id="new_username" name="username" required></div>
+  <div><label for="new_password">Password</label><input id="new_password" name="password" type="password" minlength="10" autocomplete="new-password" required></div>
+  <div><label for="role">Role</label><select id="role" name="role"><option>officer</option><option>admin</option></select></div>
+  <div><button>Add user</button></div>
+</form>
+<h2>Cameras</h2>
+<table>
+  <tr><th>Name</th><th>Location</th><th>Position</th><th>Stream</th><th></th></tr>
+  {% for camera in cameras %}
+  <tr><td>{{ camera.name }}</td><td>{{ camera.location }}</td>
+    <td>{% if camera.lat is not none %}{{ camera.lat }}, {{ camera.lon }}{% endif %}</td>
+    <td>{{ 'configured' if camera.source_url else '' }}</td>
+    <td>{% if camera.source_url %}<form method="post" action="/admin/cameras/{{ camera.id }}/start">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="plain">Start live processing</button></form>{% endif %}</td></tr>
+  {% else %}
+  <tr><td colspan="5" class="note">No cameras yet.</td></tr>
+  {% endfor %}
+</table>
+<form class="card row" method="post" action="/admin/cameras" style="margin-top: 12px">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <div><label for="cam_name">Name</label><input id="cam_name" name="name" required></div>
+  <div><label for="cam_location">Location</label><input id="cam_location" name="location"></div>
+  <div><label for="lat">Latitude</label><input id="lat" name="lat" inputmode="decimal"></div>
+  <div><label for="lon">Longitude</label><input id="lon" name="lon" inputmode="decimal"></div>
+  <div><label for="source_url">Stream address (optional)</label><input id="source_url" name="source_url" placeholder="rtsp://"></div>
+  <div><button>Add camera</button></div>
+</form>
+{% endblock %}
