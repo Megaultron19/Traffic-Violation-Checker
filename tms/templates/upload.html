@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Upload footage{% endblock %}
+{% block main %}
+<h1>Upload footage</h1>
+{% if not cameras %}
+<p class="card">No cameras yet. An admin needs to add one before footage can be uploaded.</p>
+{% else %}
+<form class="card" method="post" action="/upload" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label for="camera_id">Camera</label>
+  <select id="camera_id" name="camera_id" required>
+    {% for camera in cameras %}<option value="{{ camera.id }}">{{ camera.name }}{% if camera.location %}, {{ camera.location }}{% endif %}</option>{% endfor %}
+  </select>
+  <label for="recorded_start">Recording started at</label>
+  <input id="recorded_start" name="recorded_start" type="datetime-local" step="1" required>
+  <p class="note">Case times are worked out from this, so take it from the camera or recorder, not the file.</p>
+  <label for="video">Video file</label>
+  <input id="video" name="video" type="file" accept=".mp4,.avi,.mov,.mkv" required>
+  <p><button>Upload and process</button></p>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Audit log{% endblock %}
+{% block main %}
+<h1>Audit log</h1>
+{% if broken %}<div class="error" role="alert">The log has been altered: the chain breaks at entry {{ broken }}.</div>
+{% else %}<p class="note">The chain is intact. Showing the latest 500 entries.</p>{% endif %}
+<table>
+  <tr><th>Entry</th><th>Time</th><th>User</th><th>Action</th><th>Target</th><th>Details</th></tr>
+  {% for entry in entries %}
+  <tr><td>{{ entry.id }}</td><td>{{ entry.at }}</td><td>{{ entry.username or 'system' }}</td>
+    <td>{{ entry.action }}</td><td>{{ entry.target }}</td><td>{{ entry.details_json }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

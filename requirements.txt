@@ -1,5 +1,10 @@
-ultralytics>=8.1
+ultralytics>=8.3
 lap
-opencv-python
-pandas
-streamlit>=1.45
+opencv-python-headless
+rapidocr-onnxruntime
+fastapi
+uvicorn
+jinja2
+python-multipart
+itsdangerous
+argon2-cffi

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Calibration{% endblock %}
+{% block main %}
+<h1>Calibration</h1>
+<p class="note">Automatic issuing can be switched on for a check once at least {{ min_reviewed }} reviewed cases
+show, with 95% confidence, a precision of {{ (target * 100) | round(1) }}% or better at some confidence level.
+{{ (sample_rate * 100) | round | int }}% of automatically issued cases still go to an officer. Replacing a model starts its check again from zero.</p>
+{% for item in checks %}
+<div class="card">
+  <h2 style="margin-top: 0">{{ labels[item.check] }}</h2>
+  {% if not item.version %}
+  <p class="note">No {{ item.model }} model is installed, so this check is not running.</p>
+  {% else %}
+  <p>Model: {{ item.model }} {{ item.version }}. Reviewed cases: {{ item.reviewed }}.
+  Automatic issuing is <strong>{{ 'on' if item.enabled else 'off' }}</strong>{% if item.enabled %} at confidence {{ '%.2f' | format(item.threshold) }} and above{% endif %}.</p>
+  <table>
+    <tr><th>Confidence at least</th><th>Reviewed cases</th><th>Precision</th><th>Lower bound</th></tr>
+    {% for row in item.table %}
+    <tr><td>{{ '%.2f' | format(row.threshold) }}</td><td>{{ row.n }}</td>
+      <td>{{ '%.1f%%' | format(row.precision * 100) if row.n else '' }}</td>
+      <td>{{ '%.1f%%' | format(row.lower * 100) if row.n else '' }}</td></tr>
+    {% endfor %}
+  </table>
+  <form method="post" action="/calibration/{{ item.check }}" style="margin-top: 12px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% if item.enabled %}
+    <button class="bad" name="enable" value="0">Switch automatic issuing off</button>
+    {% elif item.best %}
+    <button name="enable" value="1">Switch automatic issuing on at {{ '%.2f' | format(item.best.threshold) }}</button>
+    <span class="note">Lower bound {{ '%.1f%%' | format(item.best.lower * 100) }} over {{ item.best.n }} cases.</span>
+    {% else %}
+    <button disabled>Switch automatic issuing on</button>
+    <span class="note">Not available yet: the bar has not been met.</span>
+    {% endif %}
+  </form>
+  {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

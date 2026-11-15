@@ -1,3 +1,7 @@
-outputs/
 __pycache__/
-sample_videos/
+.pytest_cache/
+.venv/
+venv/
+data/
+runs/
+models/*.pt
