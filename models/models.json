@@ -1,0 +1,3 @@
+{
+  "detector": {"path": "yolo11n.pt", "version": "coco-yolo11n"}
+}
