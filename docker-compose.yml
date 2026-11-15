@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    command: uvicorn tms.web:app --host 0.0.0.0 --port 8000
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./data:/data
+      - ./models:/models
+    restart: unless-stopped
+  worker:
+    build: .
+    command: python -m tms.worker
+    volumes:
+      - ./data:/data
+      - ./models:/models
+    restart: unless-stopped
