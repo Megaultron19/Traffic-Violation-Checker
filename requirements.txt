@@ -1,5 +1,0 @@
-ultralytics>=8.1
-lap
-opencv-python
-pandas
-streamlit>=1.45
